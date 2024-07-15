@@ -2,8 +2,10 @@ package main
 
 import (
 	"log/slog"
+	"net/http"
 	"os"
 	"shortener-golang/internal/config"
+	"shortener-golang/internal/http-server/handlers/url/save"
 	"shortener-golang/internal/http-server/logger"
 	"shortener-golang/internal/lib/logger/sl"
 	"shortener-golang/internal/storage/sqlite"
@@ -19,18 +21,16 @@ const (
 )
 
 func main() {
-	// TODO: init config: clearenv
 
+	// TODO: init config: clearenv
 	cfg := config.MustLoad()
 
 	// TODO: init logger: slog: log/slog
 	log := setupLogger(cfg.Env)
-
 	log.Info("Runnning Shortener", slog.String("env", cfg.Env))
 
 	// TODO: init storage: sqlite
 	storage, err := sqlite.New(cfg.StoragePath)
-
 	_ = storage
 	if err != nil {
 		log.Error("fail to init storage", sl.Err(err))
@@ -38,6 +38,7 @@ func main() {
 		// or empty return
 	}
 
+	// TODO: init routers
 	router := chi.NewRouter()
 	// get request id
 	router.Use(middleware.RequestID)
@@ -47,6 +48,24 @@ func main() {
 	router.Use(middleware.Recoverer)
 	// get url params
 	router.Use(middleware.URLFormat)
+
+	router.Post("/url", save.New(log, storage))
+
+	log.Info("starting server", slog.String("address", cfg.Address))
+
+	server := & http.Server{
+		Addr: cfg.Address,
+		Handler: router,
+		ReadTimeout: cfg.HTTPServer.Timeout,
+		WriteTimeout: cfg.HTTPServer.Timeout,
+		IdleTimeout: cfg.HTTPServer.IdleTimeout,
+	}
+
+	if err := server.ListenAndServe(); err != nil {
+		log.Error("fail to start server")
+	}
+
+	log.Error("server stopped")
 
 	// TODO: init run server
 }
