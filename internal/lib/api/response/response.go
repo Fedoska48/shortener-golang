@@ -15,11 +15,18 @@ type Response struct {
 const (
 	StatusOK    = "OK"
 	StatusError = "Error"
+	StatusDeleted = "Deleted"
 )
 
 func OK() Response {
 	return Response{
 		Status: StatusOK,
+	}
+}
+
+func Delete() Response {
+	return Response{
+		Status: StatusDeleted,
 	}
 }
 

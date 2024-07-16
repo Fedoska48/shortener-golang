@@ -24,9 +24,10 @@ type Request struct {
 
 type Response struct {
 	resp.Response
-	Alias string `json:"alais,omitempty"`
+	Alias string `json:"alias,omitempty"`
 }
 
+// go:generate go run github.com/vektra/mockery/v2@v2.28.2 --name=URLSaver
 type URLSaver interface {
 	SaveURL(urlToSave string, alias string) (int64, error)
 }
@@ -90,7 +91,7 @@ func New(log *slog.Logger, urlSaver URLSaver) http.HandlerFunc {
 
 		render.JSON(w, r, Response{
 			Response: resp.OK(),
-			Alias: alias,
+			Alias:    alias,
 		})
 	}
 }

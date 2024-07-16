@@ -5,7 +5,9 @@ import (
 	"net/http"
 	"os"
 	"shortener-golang/internal/config"
+	"shortener-golang/internal/http-server/handlers/url/redirect"
 	"shortener-golang/internal/http-server/handlers/url/save"
+	"shortener-golang/internal/http-server/handlers/url/delete"
 	"shortener-golang/internal/http-server/logger"
 	"shortener-golang/internal/lib/logger/sl"
 	"shortener-golang/internal/storage/sqlite"
@@ -50,15 +52,17 @@ func main() {
 	router.Use(middleware.URLFormat)
 
 	router.Post("/url", save.New(log, storage))
+	router.Get("/{alias}", redirect.New(log, storage))
+	router.Delete("/{alias}", delete.New(log, storage))
 
 	log.Info("starting server", slog.String("address", cfg.Address))
 
-	server := & http.Server{
-		Addr: cfg.Address,
-		Handler: router,
-		ReadTimeout: cfg.HTTPServer.Timeout,
+	server := &http.Server{
+		Addr:         cfg.Address,
+		Handler:      router,
+		ReadTimeout:  cfg.HTTPServer.Timeout,
 		WriteTimeout: cfg.HTTPServer.Timeout,
-		IdleTimeout: cfg.HTTPServer.IdleTimeout,
+		IdleTimeout:  cfg.HTTPServer.IdleTimeout,
 	}
 
 	if err := server.ListenAndServe(); err != nil {
