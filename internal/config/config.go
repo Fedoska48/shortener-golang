@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 	"time"
-
+	"github.com/joho/godotenv"
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
@@ -18,6 +18,12 @@ type HTTPServer struct {
 	Address     string        `yaml:"address" env-default:"localhost:8080"`
 	Timeout     time.Duration `yaml:"timeout" env-default:"4s"`
 	IdleTimeout time.Duration `yaml:"idle_timeout" env-default:"60s"`
+}
+
+func init() {
+	if err := godotenv.Load("../../.env"); err != nil {
+		log.Fatal("Can't read .env file")
+	}
 }
 
 func MustLoad() *Config {
