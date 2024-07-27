@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"shortener-golang/internal/storage"
-	
+
 	"github.com/mattn/go-sqlite3"
 )
 
@@ -95,6 +95,9 @@ func (s *Storage) DelURL(alias string) (string, error) {
 
 	stmt, err := s.db.Prepare("DELETE FROM url WHERE alias = ?")
 
+	//
+	fmt.Println(alias)
+
 	if err != nil {
 		return "", fmt.Errorf("%s: prepare query: %w", op, err)
 	}
@@ -106,5 +109,4 @@ func (s *Storage) DelURL(alias string) (string, error) {
 	}
 
 	return alias, nil
-
 }
