@@ -51,9 +51,17 @@ func main() {
 	// get url params
 	router.Use(middleware.URLFormat)
 
-	router.Post("/url", save.New(log, storage))
+	router.Route("/url", func(r chi.Router) {
+		r.Use(middleware.BasicAuth("shortener-golang", map[string]string {
+			cfg.HTTPServer.User: cfg.HTTPServer.Password,
+			// add new users here
+		}))
+
+		r.Post("/", save.New(log, storage))
+		r.Delete("/", delete.New(log, storage))
+	})
+
 	router.Get("/{alias}", redirect.New(log, storage))
-	router.Delete("/url", delete.New(log, storage))
 
 	log.Info("starting server", slog.String("address", cfg.Address))
 

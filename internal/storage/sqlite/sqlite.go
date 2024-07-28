@@ -95,9 +95,6 @@ func (s *Storage) DelURL(alias string) (string, error) {
 
 	stmt, err := s.db.Prepare("DELETE FROM url WHERE alias = ?")
 
-	//
-	fmt.Println(alias)
-
 	if err != nil {
 		return "", fmt.Errorf("%s: prepare query: %w", op, err)
 	}
